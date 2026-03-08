@@ -1,19 +1,23 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Modelos para la parte de gallinas ponedoras
 class LotePonedora(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lotes_ponedoras', null=True, blank=True)
     nombre = models.CharField(max_length=100)
     cantidad_gallinas = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_inicio = models.DateField()
     cantidad_muerto = models.IntegerField(default=0)
     estado = models.IntegerField(default=0)
-    edad_semanas = models.IntegerField(default=0) 
+    edad_semanas = models.IntegerField(default=0)
     muertos_semanales = models.IntegerField(default=0)
-    
+
 
     def __str__(self):
+        if self.usuario:
+            return f"{self.nombre} - Usuario: {self.usuario.username}"
         return self.nombre
     
 class RegistroHuevos(models.Model):

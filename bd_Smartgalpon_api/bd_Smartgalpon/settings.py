@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import timedelta
 import os
 import dj_database_url
 from decouple import config
@@ -9,23 +10,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-default-key-for-dev-only')
 
 # DEBUG - En producción debe ser False
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 # ALLOWED HOSTS - SIN https://
 ALLOWED_HOSTS = [
-    'backend-gestor-pollos.onrender.com',  # SIN https://
+  #  'backend-gestor-pollos.onrender.com',  # SIN https://
     'localhost',
     '127.0.0.1',
     '0.0.0.0',
+    '192.168.101.90',  # IP local de tu máquina
+    '*',  # Para desarrollo, permitir todos
 ]
 
 # -----------------------------------------------------------------------------
 # REST FRAMEWORK CONFIG
 # -----------------------------------------------------------------------------
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
     'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
-    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
 }
 
 # -----------------------------------------------------------------------------
@@ -40,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
 
     'api',
@@ -63,22 +69,31 @@ MIDDLEWARE = [
 # -----------------------------------------------------------------------------
 # CORS / CSRF
 # -----------------------------------------------------------------------------
-CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo, en producción especifica orígenes
+CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo, permite todos los orígenes
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8000",
-    "https://backend-gestor-pollos.onrender.com",
-    # Agrega aquí tu frontend cuando lo despliegues
-]
+# CORS - Permitir todas las conexiones para desarrollo
+CORS_ALLOW_CREDENTIALS = True
 
+# CSRF - Para desarrollo, deshabilitar validación estricta
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://0.0.0.0:8000",
-    "https://backend-gestor-pollos.onrender.com",
+    "http://10.0.2.2:8000",  # Android Emulator
+    "http://192.168.*:8000",  # Dispositivos en red local
+]
+
+# Headers permitidos en CORS
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 # -----------------------------------------------------------------------------
@@ -109,21 +124,23 @@ WSGI_APPLICATION = 'bd_Smartgalpon.wsgi.application'
 # -----------------------------------------------------------------------------
 # Obtener DATABASE_URL de variables de entorno
 DATABASE_URL = config('DATABASE_URL', default=None)
-DATABASE_URL = config('DATABASE_URL', default=None)
 
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
-            ssl_require=True
         )
     }
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'gestorpollos',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '3306',
         }
     }
 # -----------------------------------------------------------------------------
@@ -176,24 +193,34 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # -----------------------------------------------------------------------------
+# JWT CONFIGURATION
+# -----------------------------------------------------------------------------
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# -----------------------------------------------------------------------------
 # SUPABASE CONFIGURATION
 # -----------------------------------------------------------------------------
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
 SUPABASE_ANON_KEY = os.environ.get('SUPABASE_KEY', '')
 
 # -----------------------------------------------------------------------------
-# SECURITY SETTINGS PARA PRODUCCIÓN
+# SECURITY SETTINGS PARA PRODUCCIÓN (deshabilitado para desarrollo local)
 # -----------------------------------------------------------------------------
-if not DEBUG:
-    # HTTPS settings
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    
-    # Otros ajustes de seguridad
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# if not DEBUG:
+#     # HTTPS settings
+#     SECURE_SSL_REDIRECT = True
+#     SESSION_COOKIE_SECURE = True
+#     CSRF_COOKIE_SECURE = True
+#     SECURE_BROWSER_XSS_FILTER = True
+#     SECURE_CONTENT_TYPE_NOSNIFF = True
+#     SECURE_HSTS_SECONDS = 31536000  # 1 year
+#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#     SECURE_HSTS_PRELOAD = True
+#
+#     # Otros ajustes de seguridad
+#     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
