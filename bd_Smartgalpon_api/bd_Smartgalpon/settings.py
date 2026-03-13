@@ -25,6 +25,7 @@ ALLOWED_HOSTS = [
     '*.render.com',  # Render
     '*.onrender.com',  # Render (dominio alternativo)
     'backend-gestor-pollos.onrender.com',  # Tu dominio de Render
+    'smartgalpon-api.onrender.com',  # Tu dominio de Render
     '*',  # Para desarrollo, permitir todos
 ]
 
@@ -94,6 +95,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://*.render.com",  # Render
     "https://*.onrender.com",  # Render (dominio alternativo)
     "https://backend-gestor-pollos.onrender.com",  # Tu dominio de Render
+    "https://smartgalpon-api.onrender.com",  # Tu dominio de Render
 ]
 
 # Headers permitidos en CORS
