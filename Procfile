@@ -1,1 +1,1 @@
-web: gunicorn bd_Smartgalpon.wsgi --chdir bd_Smartgalpon_api --log-file -
+web: cd bd_Smartgalpon_api && gunicorn bd_Smartgalpon.wsgi:application

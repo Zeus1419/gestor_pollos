@@ -14,11 +14,17 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 # ALLOWED HOSTS - SIN https://
 ALLOWED_HOSTS = [
-  #  'backend-gestor-pollos.onrender.com',  # SIN https://
     'localhost',
     '127.0.0.1',
     '0.0.0.0',
+    '10.0.2.2',  # Android Emulator
+    '192.168.1.14',  # IP local de tu máquina (Wi-Fi)
     '192.168.101.90',  # IP local de tu máquina
+    '*.pythonanywhere.com',  # PythonAnywhere
+    'tuusuario.pythonanywhere.com',  # Reemplaza con tu subdominio
+    '*.render.com',  # Render
+    '*.onrender.com',  # Render (dominio alternativo)
+    'backend-gestor-pollos.onrender.com',  # Tu dominio de Render
     '*',  # Para desarrollo, permitir todos
 ]
 
@@ -74,13 +80,18 @@ CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo, permite todos los orígenes
 # CORS - Permitir todas las conexiones para desarrollo
 CORS_ALLOW_CREDENTIALS = True
 
-# CSRF - Para desarrollo, deshabilitar validación estricta
+# CSRF - Para desarrollo y producción
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://0.0.0.0:8000",
     "http://10.0.2.2:8000",  # Android Emulator
+    "http://192.168.1.14:8000",  # IP local de tu máquina (Wi-Fi)
     "http://192.168.*:8000",  # Dispositivos en red local
+    "https://tuusuario.pythonanywhere.com",  # PythonAnywhere (reemplaza con tu subdominio)
+    "https://*.render.com",  # Render
+    "https://*.onrender.com",  # Render (dominio alternativo)
+    "https://backend-gestor-pollos.onrender.com",  # Tu dominio de Render
 ]
 
 # Headers permitidos en CORS
@@ -209,18 +220,18 @@ SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
 SUPABASE_ANON_KEY = os.environ.get('SUPABASE_KEY', '')
 
 # -----------------------------------------------------------------------------
-# SECURITY SETTINGS PARA PRODUCCIÓN (deshabilitado para desarrollo local)
+# SECURITY SETTINGS PARA PRODUCCIÓN
 # -----------------------------------------------------------------------------
-# if not DEBUG:
-#     # HTTPS settings
-#     SECURE_SSL_REDIRECT = True
-#     SESSION_COOKIE_SECURE = True
-#     CSRF_COOKIE_SECURE = True
-#     SECURE_BROWSER_XSS_FILTER = True
-#     SECURE_CONTENT_TYPE_NOSNIFF = True
-#     SECURE_HSTS_SECONDS = 31536000  # 1 year
-#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-#     SECURE_HSTS_PRELOAD = True
-#
-#     # Otros ajustes de seguridad
-#     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+if not DEBUG:
+    # HTTPS settings
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Otros ajustes de seguridad
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

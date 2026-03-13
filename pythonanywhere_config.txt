@@ -1,0 +1,112 @@
+# ============================================
+# GUÍA DE CONFIGURACIÓN - PYTHONANYWHERE
+# ============================================
+
+# 1. SUBIR ARCHIVOS
+# -----------------
+# Opción A: Usando Git
+cd ~
+git clone <URL_DE_TU_REPOSITORIO> backend_gestor_pollos
+
+# Opción B: Subir manualmente desde el dashboard de PythonAnywhere
+# - Ve a "Files" y sube la carpeta backend_gestor_pollos
+
+
+# 2. CREAR ENTORNO VIRTUAL
+# ------------------------
+cd ~/backend_gestor_pollos
+python3 -m venv venv
+source venv/bin/activate
+pip install -r bd_Smartgalpon_api/requirements.txt
+
+
+# 3. CONFIGURAR BASE DE DATOS
+# ---------------------------
+# Ve a la pestaña "Databases" en PythonAnywhere:
+# - Crea una base de datos MySQL
+# - Anota las credenciales:
+#   * Host: tuusuario.mysql.pythonanywhere-services.com
+#   * Database: tuusuario$gestorpollos
+#   * User: tuusuario
+#   * Password: tu_contraseña
+
+# Ejecuta migraciones:
+cd ~/backend_gestor_pollos/bd_Smartgalpon_api
+source ~/backend_gestor_pollos/venv/bin/activate
+python manage.py migrate
+
+
+# 4. CREAR ARCHIVO .ENV
+# ---------------------
+# Crea: ~/backend_gestor_pollos/bd_Smartgalpon_api/.env
+
+SECRET_KEY=tu-clave-segura-muy-larga-y-aleatoria
+DEBUG=False
+DATABASE_URL=mysql://tuusuario:tu_contraseña@tuusuario.mysql.pythonanywhere-services.com/tuusuario$gestorpollos
+
+
+# 5. CONFIGURAR WEB APP
+# ---------------------
+# Ve a la pestaña "Web" en PythonAnywhere:
+# - Click en "Add a new web app"
+# - Selecciona "Manual configuration"
+# - Python version: 3.9
+# - Source code: /home/tuusuario/backend_gestor_pollos/bd_Smartgalpon_api
+# - Working directory: /home/tuusuario/backend_gestor_pollos/bd_Smartgalpon_api
+# - Virtualenv: /home/tuusuario/backend_gestor_pollos/venv
+
+
+# 6. CONFIGURAR WSGI
+# ------------------
+# En la pestaña "Web", click en el archivo WSGI configuration file y edita:
+
+import os
+import sys
+
+path = '/home/tuusuario/backend_gestor_pollos/bd_Smartgalpon_api'
+if path not in sys.path:
+    sys.path.append(path)
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'bd_Smartgalpon.settings'
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+
+
+# 7. REEMPLAZA "tuusuario" CON TU USUARIO DE PYTHONANYWHERE
+# ---------------------------------------------------------
+# En todos los paths y configuraciones, reemplaza:
+# - /home/tuusuario/ -> /home/tu_usuario_real/
+# - tuusuario.pythonanywhere.com -> tu_usuario_real.pythonanywhere.com
+
+
+# 8. REINICIAR LA WEB APP
+# -----------------------
+# En la pestaña "Web", click en el botón verde "Reload"
+
+
+# 9. ACTUALIZAR API CONFIG EN FLUTTER
+# -----------------------------------
+# En tu proyecto Flutter, actualiza:
+# lib/config/api_config.dart
+# lib/services/auth_service.dart
+
+# Cambia la URL a:
+# https://tuusuario.pythonanywhere.com/api
+
+
+# 10. COMANDOS ÚTILES
+# -------------------
+# Ejecutar en consola de PythonAnywhere:
+
+# Activar entorno virtual
+source ~/backend_gestor_pollos/venv/bin/activate
+
+# Crear superusuario
+python manage.py createsuperuser
+
+# Ver logs
+tail -f /var/log/tuusuario.pythonanywhere.com/error.log
+
+# Recargar aplicación
+touch /var/www/tuusuario_pythonanywhere_com_wsgi.py
