@@ -2,9 +2,10 @@
 # https://docs.gunicorn.org/en/stable/configure.html
 
 import multiprocessing
+import os
 
-# Server socket
-bind = "0.0.0.0:8000"
+# Server socket - Render usa la variable $PORT
+bind = "0.0.0.0:" + os.environ.get("PORT", "8000")
 
 # Worker processes
 workers = multiprocessing.cpu_count() * 2 + 1
