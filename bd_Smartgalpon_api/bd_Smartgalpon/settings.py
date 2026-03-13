@@ -70,6 +70,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
 ]
 
 # -----------------------------------------------------------------------------
@@ -144,16 +146,12 @@ if DATABASE_URL:
         )
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'gestorpollos',
-            'USER': 'root',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        }
-    }
+  DATABASES = {
+    'default': dj_database_url.config(
+        default='postgresql://andres:SWmHwH1CP4wSIfcGDZCqp8A0Juoslf4E@dpg-d6ppqpnkijhs73aiu70g-a/gestion_pollos_0jex',
+        conn_max_age=600
+    )
+}
 # -----------------------------------------------------------------------------
 # PASSWORD VALIDATION
 # -----------------------------------------------------------------------------
@@ -235,3 +233,10 @@ if not DEBUG:
 
     # Otros ajustes de seguridad
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+STATIC_URL = '/static/'
+
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
